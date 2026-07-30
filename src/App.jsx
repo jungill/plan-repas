@@ -50,7 +50,7 @@ const TARTES = {
   },
   saumon: {
     nom: "Tarte saumon-épinards", type: "poisson",
-    kcalPart: 390, protPart: 18, temps: "55 min",
+    kcalPart: 400, protPart: 20, temps: "55 min",
     jours: [DIMANCHE],
     ing: [
       { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
@@ -59,6 +59,7 @@ const TARTES = {
       { q: 4, u: "", n: "œufs", cat: C },
       { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
       { q: 100, u: "g", n: "ricotta", cat: C },
+      { q: 100, u: "g", n: "fromage blanc 3 %", cat: C },
       { q: 50, u: "g", n: "parmesan", cat: C },
       { q: null, u: "", n: "échalote, citron", cat: L, fixe: true },
     ],
@@ -68,7 +69,7 @@ const TARTES = {
       "Les presser fortement entre les mains, en plusieurs fois. Tu dois pouvoir en extraire l'équivalent d'un demi-verre d'eau. C'est cette étape, et pas la cuisson, qui décide si la tarte tient ou se délite.",
       "Hacher grossièrement la boule d'épinards au couteau : sans ça, on tire de longs filaments à chaque bouchée.",
       "Préchauffer à 200 °C. Foncer le moule, piquer le fond, cuire à blanc 10 minutes avec des poids puis 3 minutes sans.",
-      "Battre les œufs avec la crème et la ricotta. Insister au fouet jusqu'à ce que la ricotta soit totalement lisse, elle a tendance à rester en petits grains. Ajouter le zeste de citron et du poivre, mais pas de sel : saumon fumé et parmesan en apportent déjà beaucoup.",
+      "Battre les œufs avec la crème, la ricotta et le fromage blanc. Insister au fouet jusqu'à ce que la ricotta soit totalement lisse, elle a tendance à rester en petits grains. Ajouter le zeste de citron et du poivre, mais pas de sel : saumon fumé et parmesan en apportent déjà beaucoup.",
       "Répartir les épinards sur le fond, poser les lanières de saumon dessus, verser l'appareil et parsemer de parmesan.",
       "Cuire 30 minutes seulement à 180 °C, pas plus : le saumon fumé se dessèche et devient granuleux s'il cuit trop longtemps.",
     ],
@@ -76,7 +77,7 @@ const TARTES = {
   },
   poireaux: {
     nom: "Quiche poulet, poireaux, comté", type: "viande",
-    kcalPart: 375, protPart: 19, temps: "1 h 10",
+    kcalPart: 385, protPart: 21, temps: "1 h 10",
     jours: [MERCREDI],
     ing: [
       { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
@@ -84,7 +85,7 @@ const TARTES = {
       { q: 300, u: "g", n: "poireaux", cat: L },
       { q: 4, u: "", n: "œufs", cat: C },
       { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
-      { q: 100, u: "g", n: "fromage blanc 3 %", cat: C },
+      { q: 200, u: "g", n: "fromage blanc 3 %", cat: C },
       { q: 100, u: "g", n: "comté râpé", cat: C },
       { q: 10, u: "ml", n: "huile d'olive", cat: E },
     ],
@@ -129,7 +130,7 @@ const TARTES = {
   },
   courgette: {
     nom: "Tarte courgette, chèvre et noix", type: "vege",
-    kcalPart: 440, protPart: 20, temps: "1 h 05",
+    kcalPart: 450, protPart: 22, temps: "1 h 05",
     jours: [MERCREDI],
     ing: [
       { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
@@ -137,7 +138,7 @@ const TARTES = {
       { q: 180, u: "g", n: "bûche de chèvre", cat: C },
       { q: 5, u: "", n: "œufs", cat: C },
       { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
-      { q: 150, u: "g", n: "fromage blanc 3 %", cat: C },
+      { q: 250, u: "g", n: "fromage blanc 3 %", cat: C },
       { q: 40, u: "g", n: "parmesan", cat: C },
       { q: 40, u: "g", n: "noix", cat: E },
       { q: 10, u: "ml", n: "huile d'olive", cat: E },
@@ -510,14 +511,21 @@ function parPlat(scale, repart, jourIdx) {
   const repas = [];
   indices.forEach((i) => {
     SEMAINE[i].repas.forEach((r, k) => {
-      const src = r.tarte ? r.acc.flatMap((a) => ACC[a].ing) : r.ing;
-      if (!src.length) return;
+      const tt = r.tarte ? TARTES[r.tarte] : null;
+      const src = tt ? r.acc.flatMap((a) => ACC[a].ing) : r.ing;
+      if (!src.length && !tt) return;
       const prefixeJour = jourIdx === null ? `${SEMAINE[i].abbr} · ` : "";
       repas.push({
         id: `r-${i}-${k}`,
         nom: r.t,
-        meta: `${prefixeJour}${r.h}${r.tarte ? " · en plus de la part de tarte" : ""}`,
+        meta: `${prefixeJour}${r.h}`,
         qte: null,
+        tarte: tt ? {
+          nom: tt.nom,
+          parts: Math.max(0.5, Math.round(r.parts * scale * 2) / 2),
+          fournee: tt.jours.map((x) => JOURS[x]).join(" et "),
+          ing: tt.ing,
+        } : null,
         items: src.map((g) => ({ ...g, total: g.fixe ? null : g.q * scale })),
       });
     });
@@ -674,6 +682,18 @@ const CSS = `
 .pm-platq{font:600 11px/1 var(--mono);color:var(--ocre-f);white-space:nowrap}
 .pm-platm{font:600 9px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;
   color:var(--ardoise);margin-top:5px}
+
+.pm-rappel{background:var(--sauge);border-radius:3px;padding:13px 15px;margin-top:14px}
+.pm-rappel b{display:block;font:600 9px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ardoise);margin-bottom:9px}
+.pm-rappel ul{margin:0;padding:0;list-style:none}
+.pm-rappel li{display:flex;align-items:baseline;gap:6px;font:400 14px/1.8 var(--serif);
+  color:rgba(36,59,56,.72)}
+.pm-rappel .lead{flex:1;border-bottom:1px dotted rgba(19,30,28,.25);transform:translateY(-3px)}
+.pm-rappel .qty{font:600 12px/1 var(--mono)}
+.pm-rappel p{margin:10px 0 0;font:italic 400 13px/1.5 var(--serif);color:var(--ardoise)}
+.pm-souslbl{font:600 9px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ardoise);margin:18px 0 2px}
 
 .pm-shop{list-style:none;margin:0;padding:0}
 .pm-shop li{border-bottom:1px solid rgba(19,30,28,.10)}
@@ -1021,8 +1041,8 @@ export default function PlanRepas() {
                 pour la fournée du dimanche, deux heures pour celle du mercredi.
               </p>
               <p>
-                La fournée du mercredi couvre quatre jours : congèle à l'unité les deux
-                parts de tarte au thon prévues pour dimanche, posées sur une plaque
+                La fournée du mercredi couvre quatre jours : congèle à l'unité les parts de
+                tarte au thon et de tarte courgette prévues pour dimanche, posées sur une plaque
                 avant d'aller en sac. Sortie la veille au frigo, puis 10 minutes à
                 160 °C pour retrouver une pâte croustillante.
               </p>
@@ -1158,12 +1178,39 @@ export default function PlanRepas() {
                             <div className="pm-platm">{g.meta}</div>
                           </div>
                         </div>
-                        <ul className="pm-shop">
-                          {g.items.map((i, k) =>
-                            ligne(`${prefixe}${g.id}|${k}|${i.n}`, i.n,
-                              i.fixe ? "au goût" : fmtQ(i.total, i.u))
-                          )}
-                        </ul>
+
+                        {g.tarte && (
+                          <div className="pm-rappel">
+                            <b>
+                              {fmtParts(g.tarte.parts)} part{g.tarte.parts > 1 ? "s" : ""} de {g.tarte.nom}
+                              {" · "}fournée du {g.tarte.fournee}
+                            </b>
+                            <ul>
+                              {g.tarte.ing.map((i) => (
+                                <li key={i.n}>
+                                  <span>{i.n}</span><span className="lead" />
+                                  <span className="qty">{i.fixe ? "au goût" : fmtQ(i.q, i.u)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <p>
+                              Pour la tarte entière, comptés une seule fois dans « Tartes à
+                              cuire ». Rien à racheter pour ce repas.
+                            </p>
+                          </div>
+                        )}
+
+                        {g.items.length > 0 && (
+                          <>
+                            {g.tarte && <div className="pm-souslbl">À acheter en plus</div>}
+                            <ul className="pm-shop">
+                              {g.items.map((i, k) =>
+                                ligne(`${prefixe}${g.id}|${k}|${i.n}`, i.n,
+                                  i.fixe ? "au goût" : fmtQ(i.total, i.u))
+                              )}
+                            </ul>
+                          </>
+                        )}
                       </div>
                     ))}
                   </>
