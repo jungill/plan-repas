@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 
 /* ------------------------------------------------------------------
    Plan de repas « tartes » — prise de muscle 0,25 kg / 2 semaines
-   Base du plan : 2 650 kcal.
+   Base du plan : 2 650 kcal. Vendredi sans viande.
    Les tartes se cuisent entières (moule 26 cm, 6 parts) : c'est le
    nombre de parts qui s'ajuste au poids, pas la recette.
 -------------------------------------------------------------------*/
@@ -17,11 +17,13 @@ const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dim
 const DIMANCHE = 6;
 const MERCREDI = 2;
 
+const TYPES = { viande: "viande", poisson: "poisson", vege: "végétarien", sucre: "sucré" };
+
 /* ------------------------------ tartes ------------------------------ */
 
 const TARTES = {
   lorraine: {
-    nom: "Quiche lorraine",
+    nom: "Quiche lorraine", type: "viande",
     kcalPart: 430, protPart: 19, temps: "1 h",
     jours: [DIMANCHE],
     ing: [
@@ -46,35 +48,34 @@ const TARTES = {
     ],
     astuce: "Le comté râpé posé directement sur la pâte, avant les lardons, forme une barrière de gras qui protège le fond de l'humidité de l'appareil. La pâte reste croustillante deux jours au réfrigérateur.",
   },
-  thon: {
-    nom: "Tarte au thon et à la tomate",
-    kcalPart: 370, protPart: 19, temps: "55 min",
+  saumon: {
+    nom: "Tarte saumon-épinards", type: "poisson",
+    kcalPart: 390, protPart: 18, temps: "55 min",
     jours: [DIMANCHE],
     ing: [
-      { q: 1, u: "", n: "pâte feuilletée (230 g)", cat: E },
-      { q: 280, u: "g", n: "thon au naturel", cat: P },
-      { q: 400, u: "g", n: "tomates", cat: L },
-      { q: 3, u: "", n: "œufs", cat: C },
+      { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
+      { q: 200, u: "g", n: "saumon fumé", cat: P },
+      { q: 400, u: "g", n: "épinards frais", cat: L },
+      { q: 4, u: "", n: "œufs", cat: C },
       { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
-      { q: 100, u: "g", n: "fromage blanc 3 %", cat: C },
-      { q: 80, u: "g", n: "emmental râpé", cat: C },
-      { q: null, u: "", n: "moutarde, herbes de Provence", cat: E, fixe: true },
+      { q: 100, u: "g", n: "ricotta", cat: C },
+      { q: 50, u: "g", n: "parmesan", cat: C },
+      { q: null, u: "", n: "échalote, citron", cat: L, fixe: true },
     ],
     etapes: [
-      "Commencer par les tomates, c'est l'étape longue. Les trancher en rondelles de 5 mm, les étaler sur une grille ou du papier absorbant, saler légèrement et laisser dégorger 10 minutes.",
-      "Éponger les rondelles une par une avec du papier absorbant, sur les deux faces. Sans ce passage, l'eau des tomates se libère au four et la tarte nage.",
-      "Préchauffer à 200 °C. Foncer le moule avec la pâte feuilletée en la poussant dans l'angle sans l'étirer, araser le bord, piquer le fond à la fourchette.",
-      "Badigeonner le fond d'une fine couche de moutarde au pinceau. Elle parfume, mais surtout elle forme une barrière contre l'humidité.",
-      "Cuire à blanc 10 minutes avec un papier cuisson et des légumes secs, puis 3 minutes sans les poids pour sécher le fond.",
-      "Égoutter le thon en le pressant dans une passoire avec le dos d'une cuillère : il retient beaucoup d'eau de conserve. L'émietter ensuite à la fourchette.",
-      "Battre les œufs avec la crème, le fromage blanc et les herbes, sans faire mousser. Poivrer, saler très peu : le thon en conserve est déjà salé.",
-      "Étaler le thon émietté sur le fond, ranger les tomates en rosace en les faisant se chevaucher légèrement, verser l'appareil dans les interstices, puis répartir l'emmental.",
-      "Cuire 35 minutes à 180 °C. Le dessus doit être doré et les bords des tomates légèrement confits. Reposer 10 minutes avant de découper.",
+      "Ciseler l'échalote et la faire suer 2 minutes dans une grande sauteuse. Ajouter les épinards par poignées, en attendant que chaque poignée retombe avant d'ajouter la suivante. Compter 5 minutes en tout : 400 g réduisent à une grosse boule.",
+      "Verser les épinards dans une passoire et les laisser refroidir 5 minutes, sinon impossible de les manipuler.",
+      "Les presser fortement entre les mains, en plusieurs fois. Tu dois pouvoir en extraire l'équivalent d'un demi-verre d'eau. C'est cette étape, et pas la cuisson, qui décide si la tarte tient ou se délite.",
+      "Hacher grossièrement la boule d'épinards au couteau : sans ça, on tire de longs filaments à chaque bouchée.",
+      "Préchauffer à 200 °C. Foncer le moule, piquer le fond, cuire à blanc 10 minutes avec des poids puis 3 minutes sans.",
+      "Battre les œufs avec la crème et la ricotta. Insister au fouet jusqu'à ce que la ricotta soit totalement lisse, elle a tendance à rester en petits grains. Ajouter le zeste de citron et du poivre, mais pas de sel : saumon fumé et parmesan en apportent déjà beaucoup.",
+      "Répartir les épinards sur le fond, poser les lanières de saumon dessus, verser l'appareil et parsemer de parmesan.",
+      "Cuire 30 minutes seulement à 180 °C, pas plus : le saumon fumé se dessèche et devient granuleux s'il cuit trop longtemps.",
     ],
-    astuce: "Une cuillerée de chapelure ou de semoule fine saupoudrée sur le fond précuit, sous le thon, absorbe le peu d'humidité qui reste. C'est le vieux réflexe des tartes aux fruits, il marche aussi bien en salé.",
+    astuce: "Réserve deux lanières de saumon crues et pose-les sur la part au moment de servir. Le contraste entre la tarte tiède et le saumon froid change complètement la bouchée, pour zéro effort.",
   },
   poireaux: {
-    nom: "Quiche poulet, poireaux, comté",
+    nom: "Quiche poulet, poireaux, comté", type: "viande",
     kcalPart: 375, protPart: 19, temps: "1 h 10",
     jours: [MERCREDI],
     ing: [
@@ -99,44 +100,46 @@ const TARTES = {
     ],
     astuce: "Garde deux cuillerées de poireaux fondus de côté et pose-les sur le dessus avant d'enfourner : elles caramélisent au four et donnent du relief à une quiche qui, sinon, est uniforme d'un bout à l'autre.",
   },
-  saumon: {
-    nom: "Tarte saumon-épinards",
-    kcalPart: 390, protPart: 18, temps: "55 min",
+  thon: {
+    nom: "Tarte au thon et à la tomate", type: "poisson",
+    kcalPart: 370, protPart: 19, temps: "55 min",
+    jours: [MERCREDI],
+    ing: [
+      { q: 1, u: "", n: "pâte feuilletée (230 g)", cat: E },
+      { q: 280, u: "g", n: "thon au naturel", cat: P },
+      { q: 400, u: "g", n: "tomates", cat: L },
+      { q: 3, u: "", n: "œufs", cat: C },
+      { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
+      { q: 100, u: "g", n: "fromage blanc 3 %", cat: C },
+      { q: 80, u: "g", n: "emmental râpé", cat: C },
+      { q: null, u: "", n: "moutarde, herbes de Provence", cat: E, fixe: true },
+    ],
+    etapes: [
+      "Commencer par les tomates, c'est l'étape longue. Les trancher en rondelles de 5 mm, les étaler sur une grille ou du papier absorbant, saler légèrement et laisser dégorger 10 minutes.",
+      "Éponger les rondelles une par une avec du papier absorbant, sur les deux faces. Sans ce passage, l'eau des tomates se libère au four et la tarte nage.",
+      "Préchauffer à 200 °C. Foncer le moule avec la pâte feuilletée en la poussant dans l'angle sans l'étirer, araser le bord, piquer le fond à la fourchette.",
+      "Badigeonner le fond d'une fine couche de moutarde au pinceau. Elle parfume, mais surtout elle forme une barrière contre l'humidité.",
+      "Cuire à blanc 10 minutes avec un papier cuisson et des légumes secs, puis 3 minutes sans les poids pour sécher le fond.",
+      "Égoutter le thon en le pressant dans une passoire avec le dos d'une cuillère : il retient beaucoup d'eau de conserve. L'émietter ensuite à la fourchette.",
+      "Battre les œufs avec la crème, le fromage blanc et les herbes, sans faire mousser. Poivrer, saler très peu : le thon en conserve est déjà salé.",
+      "Étaler le thon émietté sur le fond, ranger les tomates en rosace en les faisant se chevaucher légèrement, verser l'appareil dans les interstices, puis répartir l'emmental.",
+      "Cuire 35 minutes à 180 °C. Le dessus doit être doré et les bords des tomates légèrement confits. Reposer 10 minutes avant de découper.",
+    ],
+    astuce: "Une cuillerée de chapelure ou de semoule fine saupoudrée sur le fond précuit, sous le thon, absorbe le peu d'humidité qui reste. C'est le vieux réflexe des tartes aux fruits, il marche aussi bien en salé.",
+  },
+  courgette: {
+    nom: "Tarte courgette, chèvre et noix", type: "vege",
+    kcalPart: 440, protPart: 20, temps: "1 h 05",
     jours: [MERCREDI],
     ing: [
       { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
-      { q: 200, u: "g", n: "saumon fumé", cat: P },
-      { q: 400, u: "g", n: "épinards frais", cat: L },
-      { q: 4, u: "", n: "œufs", cat: C },
-      { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
-      { q: 100, u: "g", n: "ricotta", cat: C },
-      { q: 50, u: "g", n: "parmesan", cat: C },
-      { q: null, u: "", n: "échalote, citron", cat: L, fixe: true },
-    ],
-    etapes: [
-      "Ciseler l'échalote et la faire suer 2 minutes dans une grande sauteuse. Ajouter les épinards par poignées, en attendant que chaque poignée retombe avant d'ajouter la suivante. Compter 5 minutes en tout : 400 g réduisent à une grosse boule.",
-      "Verser les épinards dans une passoire et les laisser refroidir 5 minutes, sinon impossible de les manipuler.",
-      "Les presser fortement entre les mains, en plusieurs fois. Tu dois pouvoir en extraire l'équivalent d'un demi-verre d'eau. C'est cette étape, et pas la cuisson, qui décide si la tarte tient ou se délite.",
-      "Hacher grossièrement la boule d'épinards au couteau : sans ça, on tire de longs filaments à chaque bouchée.",
-      "Préchauffer à 200 °C. Foncer le moule, piquer le fond, cuire à blanc 10 minutes avec des poids puis 3 minutes sans.",
-      "Battre les œufs avec la crème et la ricotta. Insister au fouet jusqu'à ce que la ricotta soit totalement lisse, elle a tendance à rester en petits grains. Ajouter le zeste de citron et du poivre, mais pas de sel : saumon fumé et parmesan en apportent déjà beaucoup.",
-      "Répartir les épinards sur le fond, poser les lanières de saumon dessus, verser l'appareil et parsemer de parmesan.",
-      "Cuire 30 minutes seulement à 180 °C, pas plus : le saumon fumé se dessèche et devient granuleux s'il cuit trop longtemps.",
-    ],
-    astuce: "Réserve deux lanières de saumon crues et pose-les sur la part au moment de servir. Le contraste entre la tarte tiède et le saumon froid change complètement la bouchée, pour zéro effort.",
-  },
-  courgette: {
-    nom: "Tarte courgette, chèvre, jambon",
-    kcalPart: 360, protPart: 17, temps: "1 h",
-    jours: [DIMANCHE],
-    ing: [
-      { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
       { q: 400, u: "g", n: "courgettes", cat: L },
-      { q: 200, u: "g", n: "jambon blanc", cat: P },
-      { q: 150, u: "g", n: "bûche de chèvre", cat: C },
-      { q: 4, u: "", n: "œufs", cat: C },
+      { q: 180, u: "g", n: "bûche de chèvre", cat: C },
+      { q: 5, u: "", n: "œufs", cat: C },
       { q: 150, u: "ml", n: "crème légère 15 %", cat: C },
-      { q: 100, u: "g", n: "fromage blanc 3 %", cat: C },
+      { q: 150, u: "g", n: "fromage blanc 3 %", cat: C },
+      { q: 40, u: "g", n: "parmesan", cat: C },
+      { q: 40, u: "g", n: "noix", cat: E },
       { q: 10, u: "ml", n: "huile d'olive", cat: E },
       { q: null, u: "", n: "thym", cat: E, fixe: true },
     ],
@@ -144,19 +147,19 @@ const TARTES = {
       "Trancher les courgettes en rondelles de 3 mm, à la mandoline si tu en as une, sinon au couteau bien affûté. Des rondelles épaisses restent crues au cœur et relâchent leur eau dans l'appareil.",
       "Les poêler 8 minutes à feu vif dans l'huile, en deux fournées pour ne pas surcharger la poêle. Une poêle trop chargée fait bouillir les courgettes au lieu de les dorer, et elles rendent alors toute leur eau.",
       "Saler seulement en fin de cuisson, puis les débarrasser sur du papier absorbant et laisser tiédir.",
+      "Torréfier les noix 3 minutes à la poêle à sec, puis les concasser grossièrement. Sans viande dans cette tarte, ce sont elles qui apportent la mâche et le côté nourrissant — crues, elles seraient fades et un peu amères.",
       "Préchauffer à 200 °C. Foncer le moule, piquer le fond, cuire à blanc 10 minutes avec des poids puis 3 minutes sans.",
-      "Battre les œufs avec la crème et le fromage blanc, ajouter le thym effeuillé et du poivre. Saler légèrement : le jambon et le chèvre apportent déjà du sel.",
-      "Couper le jambon en lanières d'un centimètre. Sur le fond précuit, alterner les rondelles de courgette et les lanières de jambon en rangs serrés, en les faisant se chevaucher comme des tuiles.",
-      "Verser l'appareil, puis poser les rondelles de chèvre en surface plutôt que de les enfouir.",
-      "Cuire 35 minutes à 180 °C. Le chèvre doit être doré et légèrement gonflé. Reposer 10 minutes avant de découper.",
+      "Battre les cinq œufs avec la crème, le fromage blanc, le parmesan et le thym effeuillé. Cinq œufs au lieu de quatre, c'est ce qui compense l'absence de jambon côté protéines, et l'appareil tient mieux à la découpe.",
+      "Ranger les courgettes en rangs serrés en les faisant se chevaucher comme des tuiles, parsemer les noix concassées, verser l'appareil.",
+      "Poser les rondelles de chèvre en surface plutôt que de les enfouir, puis cuire 35 minutes à 180 °C. Le chèvre doit être doré et légèrement gonflé.",
+      "Laisser reposer 10 minutes avant de découper.",
     ],
-    astuce: "Le chèvre laissé en surface fond en taches franches et crémeuses. Mélangé à l'appareil, il donne un goût uniforme et beaucoup plus plat — c'est la même quantité de fromage pour un résultat très différent.",
+    astuce: "Le chèvre laissé en surface fond en taches franches et crémeuses ; mélangé à l'appareil, il donne un goût uniforme et beaucoup plus plat. Même quantité de fromage, résultat très différent.",
   },
   fromageblanc: {
-    nom: "Tarte au fromage blanc",
+    nom: "Tarte au fromage blanc", type: "sucre",
     kcalPart: 375, protPart: 22, temps: "1 h 15",
     jours: [DIMANCHE, MERCREDI],
-    sucree: true,
     ing: [
       { q: 1, u: "", n: "pâte brisée (230 g)", cat: E },
       { q: 800, u: "g", n: "fromage blanc 3 %", cat: C },
@@ -218,7 +221,7 @@ const SEMAINE = [
           "Laisser reposer 5 minutes le temps que l'avoine gonfle. À prendre dans l'heure qui suit la séance.",
         ],
       },
-      t("thon", 1.5, ["haricots"], "20:30", "haricots verts"),
+      t("saumon", 1.5, ["haricots"], "20:30", "haricots verts"),
     ],
   },
   {
@@ -241,7 +244,7 @@ const SEMAINE = [
           "Concasser les noix et les ajouter au dernier moment, juste avant de manger, pour qu'elles restent croquantes.",
         ],
       },
-      t("courgette", 1.5, ["soupe"], "20:00", "soupe de légumes"),
+      t("lorraine", 1.5, ["soupe"], "20:00", "soupe de légumes"),
     ],
   },
   {
@@ -292,10 +295,10 @@ const SEMAINE = [
     ],
   },
   {
-    jour: "Vendredi", abbr: "VEN", num: "05", seance: true,
+    jour: "Vendredi", abbr: "VEN", num: "05", seance: true, sansViande: true,
     repas: [
       t("fromageblanc", 1.5, ["banane"], "07:30", "banane"),
-      t("poireaux", 2, ["patates"], "12:30", "pommes de terre vapeur"),
+      t("thon", 2, ["patates"], "12:30", "pommes de terre vapeur"),
       {
         h: "18:30", t: "Fromage blanc, compote, granola (après la séance)", kcal: 400, prot: 26, temps: "8 min",
         ing: [
@@ -311,7 +314,7 @@ const SEMAINE = [
           "Verser l'avoine et les amandes tiédies par-dessus, au dernier moment.",
         ],
       },
-      t("courgette", 1.5, ["salade", "pain"], "20:30", "salade et pain"),
+      t("courgette", 1.5, ["salade"], "20:30", "salade verte"),
     ],
   },
   {
@@ -334,7 +337,7 @@ const SEMAINE = [
           "Griller le pain, le tartiner de fromage frais, poser les œufs par-dessus. Servir l'orange à côté.",
         ],
       },
-      t("saumon", 2, ["salade"], "13:00", "salade verte"),
+      t("poireaux", 2, ["salade"], "13:00", "salade verte"),
       {
         h: "17:00", t: "Yaourt grec, noix, poire", kcal: 400, prot: 20, temps: "6 min",
         ing: [
@@ -349,7 +352,7 @@ const SEMAINE = [
           "Dresser en couches dans un bol — yaourt, poire, noix — et terminer par un filet de miel plutôt que de tout mélanger.",
         ],
       },
-      t("lorraine", 1.5, ["soupe"], "20:30", "soupe de légumes"),
+      t("courgette", 1.5, ["soupe"], "20:30", "soupe de légumes"),
     ],
   },
   {
@@ -371,7 +374,7 @@ const SEMAINE = [
           "Griller le pain, étaler l'avocat, poser les œufs dessus et poivrer. Servir la tomate en tranches salées à côté.",
         ],
       },
-      t("courgette", 2, ["salade"], "13:00", "salade verte"),
+      t("courgette", 1.5, ["salade"], "13:00", "salade verte"),
       {
         h: "17:00", t: "Fromage blanc, avoine, amandes", kcal: 400, prot: 28, temps: "5 min",
         ing: [
@@ -405,7 +408,7 @@ function arrondi(n, u) {
 }
 
 function fmtQ(q, u, scale = 1) {
-  if (q === null) return "";
+  if (q === null || q === undefined) return "";
   const v = arrondi(q * scale, u);
   if (u === "g" || u === "ml") return `${v} ${u}`;
   if (Number.isInteger(v)) return `${v}`;
@@ -459,7 +462,8 @@ function repartition(scale) {
   return out;
 }
 
-function agreger(scale, repart, jourIdx) {
+/* Courses regroupées par rayon */
+function parRayon(scale, repart, jourIdx) {
   const acc = {};
   const push = (ing, mult) => {
     const k = `${ing.n}|${ing.u}|${ing.fixe ? 1 : 0}`;
@@ -483,6 +487,43 @@ function agreger(scale, repart, jourIdx) {
   Object.values(acc).forEach((i) => (parCat[i.cat] = parCat[i.cat] || []).push(i));
   CATS.forEach((c) => parCat[c] && parCat[c].sort((a, b) => a.n.localeCompare(b.n, "fr")));
   return parCat;
+}
+
+/* Courses regroupées par plat */
+function parPlat(scale, repart, jourIdx) {
+  const indices = jourIdx === null ? SEMAINE.map((_, i) => i) : [jourIdx];
+
+  const fournees = [];
+  Object.entries(repart).forEach(([id, r]) => {
+    const nb = indices.reduce((s, i) => s + (r.parJour[i] || 0), 0);
+    if (!nb) return;
+    const tt = TARTES[id];
+    fournees.push({
+      id: "t-" + id,
+      nom: tt.nom,
+      meta: `${TYPES[tt.type]} · ${tt.temps} · 6 parts par tarte`,
+      qte: `${nb} tarte${nb > 1 ? "s" : ""}`,
+      items: tt.ing.map((g) => ({ ...g, total: g.fixe ? null : g.q * nb })),
+    });
+  });
+
+  const repas = [];
+  indices.forEach((i) => {
+    SEMAINE[i].repas.forEach((r, k) => {
+      const src = r.tarte ? r.acc.flatMap((a) => ACC[a].ing) : r.ing;
+      if (!src.length) return;
+      const prefixeJour = jourIdx === null ? `${SEMAINE[i].abbr} · ` : "";
+      repas.push({
+        id: `r-${i}-${k}`,
+        nom: r.t,
+        meta: `${prefixeJour}${r.h}${r.tarte ? " · en plus de la part de tarte" : ""}`,
+        qte: null,
+        items: src.map((g) => ({ ...g, total: g.fixe ? null : g.q * scale })),
+      });
+    });
+  });
+
+  return { fournees, repas };
 }
 
 /* ------------------------------ styles ------------------------------ */
@@ -538,12 +579,19 @@ const CSS = `
 .pm-dot[data-off="1"]{background:transparent}
 .pm-dot[data-four="1"]{border-radius:0;width:6px;height:6px;background:var(--ocre-f)}
 
+.pm-group{display:flex;gap:1px;background:var(--sauge);border-radius:3px;overflow:hidden;margin-top:8px}
+.pm-group button{flex:1;background:var(--papier);border:0;padding:11px 6px;cursor:pointer;
+  font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ardoise)}
+.pm-group button[data-on="1"]{background:var(--ocre);color:var(--encre)}
+
 .pm-dayhead{display:flex;align-items:center;gap:16px;padding:26px 0 6px}
 .pm-num{font:800 62px/.78 var(--sans);letter-spacing:-.05em;color:var(--ocre)}
 .pm-dayname{font:800 22px/1 var(--sans);text-transform:uppercase;letter-spacing:-.01em}
-.pm-tag{display:inline-block;margin-top:7px;font:600 9px/1 var(--mono);letter-spacing:.16em;
-  text-transform:uppercase;padding:5px 7px;border-radius:2px;background:var(--sauge);color:var(--ardoise)}
+.pm-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pm-tag{font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  padding:5px 7px;border-radius:2px;background:var(--sauge);color:var(--ardoise)}
 .pm-tag[data-seance="1"]{background:var(--ocre);color:var(--encre)}
+.pm-tag[data-vege="1"]{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ardoise);color:var(--ardoise)}
 
 .pm-meal{border-top:1px solid rgba(19,30,28,.16)}
 .pm-mealbtn{width:100%;display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:baseline;
@@ -589,6 +637,11 @@ const CSS = `
 .pm-fnom{font:700 15px/1.35 var(--sans)}
 .pm-fdet{font:600 11px/1.6 var(--mono);color:var(--ardoise)}
 .pm-fq{font:600 12px/1 var(--mono);color:var(--ocre-f);white-space:nowrap}
+.pm-type{display:inline-block;margin-left:8px;font:600 8px/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;padding:4px 6px;border-radius:2px;background:var(--sauge);
+  color:var(--ardoise);vertical-align:2px}
+.pm-type[data-t="vege"]{box-shadow:inset 0 0 0 1.5px var(--ardoise);background:transparent}
+.pm-type[data-t="poisson"]{background:var(--ardoise);color:var(--papier)}
 
 .pm-scope{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:24px 0 0}
 .pm-scopeh{font:800 20px/1.15 var(--sans);text-transform:uppercase;letter-spacing:-.01em}
@@ -602,7 +655,6 @@ const CSS = `
 .pm-frigo .lead{flex:1;border-bottom:1px dotted rgba(19,30,28,.35);transform:translateY(-3px)}
 .pm-frigo .qty{font:600 12px/1 var(--mono)}
 
-/* --- liste de courses cochable --- */
 .pm-prog{margin-top:16px}
 .pm-progbar{height:3px;background:var(--sauge);border-radius:2px;overflow:hidden}
 .pm-progbar span{display:block;height:100%;background:var(--ocre);transition:width .18s ease}
@@ -612,6 +664,16 @@ const CSS = `
   letter-spacing:.14em;text-transform:uppercase;color:var(--ocre-f);text-decoration:underline;
   text-underline-offset:3px}
 .pm-reset[disabled]{color:rgba(36,59,56,.35);text-decoration:none;cursor:default}
+
+.pm-sect{font:800 13px/1 var(--sans);letter-spacing:.03em;text-transform:uppercase;
+  color:var(--encre);margin:30px 0 0;padding-bottom:10px;border-bottom:3px solid var(--encre)}
+.pm-plat{margin-top:22px}
+.pm-plath{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  border-bottom:2px solid var(--encre);padding-bottom:9px}
+.pm-platn{font:700 15px/1.3 var(--sans)}
+.pm-platq{font:600 11px/1 var(--mono);color:var(--ocre-f);white-space:nowrap}
+.pm-platm{font:600 9px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ardoise);margin-top:5px}
 
 .pm-shop{list-style:none;margin:0;padding:0}
 .pm-shop li{border-bottom:1px solid rgba(19,30,28,.10)}
@@ -652,6 +714,7 @@ export default function PlanRepas() {
   const [ouvert, setOuvert] = useState(null);
   const [vue, setVue] = useState("semaine");
   const [scopeCourses, setScopeCourses] = useState(null);
+  const [groupe, setGroupe] = useState("rayon");
   const [coche, setCoche] = useState({});
 
   useEffect(() => {
@@ -687,7 +750,8 @@ export default function PlanRepas() {
   const scale = cible / BASE_KCAL;
 
   const repart = useMemo(() => repartition(scale), [scale]);
-  const courses = useMemo(() => agreger(scale, repart, scopeCourses), [scale, repart, scopeCourses]);
+  const rayons = useMemo(() => parRayon(scale, repart, scopeCourses), [scale, repart, scopeCourses]);
+  const plats = useMemo(() => parPlat(scale, repart, scopeCourses), [scale, repart, scopeCourses]);
 
   const joursFournee = useMemo(() => {
     const s = new Set();
@@ -697,16 +761,22 @@ export default function PlanRepas() {
     return s;
   }, [repart]);
 
-  /* --- cases à cocher --- */
-  const prefixe = scopeCourses === null ? "sem|" : `j${scopeCourses}|`;
-  const cle = (i) => `${prefixe}${i.n}|${i.u}`;
+  const prefixe = `${scopeCourses === null ? "sem" : "j" + scopeCourses}|${groupe}|`;
   const basculer = (k) => setCoche((c) => ({ ...c, [k]: !c[k] }));
   const viderScope = () =>
     setCoche((c) => Object.fromEntries(Object.entries(c).filter(([k]) => !k.startsWith(prefixe))));
 
-  const tousItems = CATS.flatMap((c) => courses[c] || []);
-  const nbTotal = tousItems.length;
-  const nbCoches = tousItems.filter((i) => coche[cle(i)]).length;
+  const cles = useMemo(() => {
+    if (groupe === "rayon") {
+      return CATS.flatMap((c) => (rayons[c] || []).map((i) => `${prefixe}${i.n}|${i.u}`));
+    }
+    return [...plats.fournees, ...plats.repas].flatMap((g) =>
+      g.items.map((i, k) => `${prefixe}${g.id}|${k}|${i.n}`)
+    );
+  }, [groupe, rayons, plats, prefixe]);
+
+  const nbTotal = cles.length;
+  const nbCoches = cles.filter((k) => coche[k]).length;
   const fini = nbTotal > 0 && nbCoches === nbTotal;
 
   const d = SEMAINE[jour];
@@ -724,6 +794,21 @@ export default function PlanRepas() {
   const nbTartesJour = scopeCourses === null ? 0 :
     Object.values(repart).reduce((s, r) => s + (r.parJour[scopeCourses] || 0), 0);
 
+  const ligne = (k, nom, qte) => {
+    const on = !!coche[k];
+    return (
+      <li key={k}>
+        <button className="pm-shopbtn" data-on={on ? 1 : 0}
+          role="checkbox" aria-checked={on} onClick={() => basculer(k)}>
+          <span className="pm-box" />
+          <span className="nom">{nom}</span>
+          <span className="lead" />
+          <span className="qty">{qte}</span>
+        </button>
+      </li>
+    );
+  };
+
   return (
     <div className="pm-root">
       <style>{CSS}</style>
@@ -733,8 +818,8 @@ export default function PlanRepas() {
           <div className="pm-eyebrow">Objectif +0,25 kg de muscle / 2 semaines</div>
           <h1 className="pm-title">Une semaine<br />de tartes</h1>
           <p className="pm-sub">
-            Sept quiches et tartes cuites en deux fournées, découpées en parts sur
-            la semaine. Le nombre de parts s'ajuste à ton poids.
+            Six quiches et tartes cuites en deux fournées, découpées en parts sur la
+            semaine. Vendredi sans viande. Le nombre de parts s'ajuste à ton poids.
           </p>
 
           <div className="pm-ctrl">
@@ -789,9 +874,12 @@ export default function PlanRepas() {
               <div className="pm-num">{d.num}</div>
               <div>
                 <div className="pm-dayname">{d.jour}</div>
-                <span className="pm-tag" data-seance={d.seance ? 1 : 0}>
-                  {d.seance ? "Séance · gainage, abdos, squats, pompes" : "Récupération"}
-                </span>
+                <div className="pm-tags">
+                  <span className="pm-tag" data-seance={d.seance ? 1 : 0}>
+                    {d.seance ? "Séance · gainage, abdos, squats, pompes" : "Récupération"}
+                  </span>
+                  {d.sansViande && <span className="pm-tag" data-vege="1">Sans viande</span>}
+                </div>
               </div>
             </div>
 
@@ -815,7 +903,7 @@ export default function PlanRepas() {
                     <div className="pm-recipe">
                       <div className="pm-rmeta">
                         {tt
-                          ? `Moule de 26 cm, 6 parts · ${tt.temps} · fournée du ${labelFournee(tt)}`
+                          ? `Moule de 26 cm, 6 parts · ${tt.temps} · ${TYPES[tt.type]} · fournée du ${labelFournee(tt)}`
                           : `Pour 1 personne · ${r.temps}`}
                       </div>
 
@@ -902,14 +990,17 @@ export default function PlanRepas() {
             {[DIMANCHE, MERCREDI].map((jf) => (
               <div key={jf}>
                 <div className="pm-catlbl">
-                  {JOURS[jf]} · {jf === DIMANCHE ? "la grosse fournée" : "la petite fournée"}
+                  {JOURS[jf]} · {jf === DIMANCHE ? "pour lundi à mercredi" : "pour jeudi à dimanche"}
                 </div>
                 {Object.entries(TARTES).filter(([id]) => (repart[id].parJour[jf] || 0) > 0).map(([id, v]) => {
                   const nb = repart[id].parJour[jf];
                   return (
                     <div className="pm-four" key={id}>
                       <div>
-                        <div className="pm-fnom">{v.nom}</div>
+                        <div className="pm-fnom">
+                          {v.nom}
+                          <span className="pm-type" data-t={v.type}>{TYPES[v.type]}</span>
+                        </div>
                         <div className="pm-fdet">
                           {fmtParts(BESOINS[id] * scale)} parts sur la semaine · {v.temps}
                         </div>
@@ -926,14 +1017,14 @@ export default function PlanRepas() {
               <p>
                 Travaille en chaîne plutôt qu'en série : prépare toutes les garnitures
                 d'abord, sur deux feux en parallèle, puis enchaîne les cuissons à blanc
-                pendant que les garnitures refroidissent. Compte deux heures pour la
-                fournée du dimanche, une bonne heure pour celle du mercredi.
+                pendant que les garnitures refroidissent. Compte une heure et demie
+                pour la fournée du dimanche, deux heures pour celle du mercredi.
               </p>
               <p>
-                Une tarte se garde trois jours au réfrigérateur, filmée. Au-delà,
-                congèle les parts à l'unité sur une plaque avant de les mettre en sac,
-                pour qu'elles ne collent pas entre elles. Sortie la veille au frigo,
-                puis 10 minutes à 160 °C : la pâte redevient croustillante.
+                La fournée du mercredi couvre quatre jours : congèle à l'unité les deux
+                parts de tarte au thon prévues pour dimanche, posées sur une plaque
+                avant d'aller en sac. Sortie la veille au frigo, puis 10 minutes à
+                160 °C pour retrouver une pâte croustillante.
               </p>
               <p>
                 Deux moules de 26 cm te font gagner un temps considérable, l'un cuit
@@ -961,6 +1052,15 @@ export default function PlanRepas() {
               ))}
             </div>
 
+            <div className="pm-group">
+              <button data-on={groupe === "rayon" ? 1 : 0} onClick={() => setGroupe("rayon")}>
+                Par rayon
+              </button>
+              <button data-on={groupe === "plat" ? 1 : 0} onClick={() => setGroupe("plat")}>
+                Par plat
+              </button>
+            </div>
+
             <div className="pm-scope">
               <div className="pm-scopeh">
                 {scopeCourses === null ? "Toute la semaine" : SEMAINE[scopeCourses].jour}
@@ -972,71 +1072,119 @@ export default function PlanRepas() {
               </div>
             </div>
 
+            <p className="pm-hint">
+              {groupe === "rayon"
+                ? "Tout est additionné et rangé comme dans le magasin. C'est la liste à sortir devant les étals."
+                : "Chaque plat avec ses ingrédients à lui. C'est la liste à vérifier avant de se mettre aux fourneaux."}
+            </p>
+
             <div className="pm-prog">
               <div className="pm-progbar">
                 <span style={{ width: nbTotal ? `${(nbCoches / nbTotal) * 100}%` : "0%" }} />
               </div>
               <div className="pm-progl">
-                <span className="pm-progn">{nbCoches} sur {nbTotal} dans le panier</span>
+                <span className="pm-progn">{nbCoches} sur {nbTotal} cochés</span>
                 <button className="pm-reset" onClick={viderScope} disabled={nbCoches === 0}>
                   Tout décocher
                 </button>
               </div>
             </div>
 
-            {partsDuJour.length > 0 && (
-              <div className="pm-frigo">
-                <b>Parts à prévoir ce jour-là</b>
-                <ul>
-                  {partsDuJour.map((p, i) => (
-                    <li key={p.nom + i}>
-                      <span>{p.nom}{p.cuiteAujourdhui ? " (cuite du jour)" : ""}</span>
-                      <span className="lead" />
-                      <span className="qty">{fmtParts(p.parts)} part{p.parts > 1 ? "s" : ""}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {groupe === "rayon" && (
+              <>
+                {partsDuJour.length > 0 && (
+                  <div className="pm-frigo">
+                    <b>Parts à prévoir ce jour-là</b>
+                    <ul>
+                      {partsDuJour.map((p, i) => (
+                        <li key={p.nom + i}>
+                          <span>{p.nom}{p.cuiteAujourdhui ? " (cuite du jour)" : ""}</span>
+                          <span className="lead" />
+                          <span className="qty">{fmtParts(p.parts)} part{p.parts > 1 ? "s" : ""}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {CATS.map((c) => (
+                  (rayons[c] || []).length > 0 && (
+                    <div key={c}>
+                      <div className="pm-catlbl">{c}</div>
+                      <ul className="pm-shop">
+                        {rayons[c].map((i) =>
+                          ligne(`${prefixe}${i.n}|${i.u}`, i.n, i.fixe ? "à avoir" : fmtQ(i.total, i.u))
+                        )}
+                      </ul>
+                    </div>
+                  )
+                ))}
+              </>
             )}
 
-            {CATS.map((c) => (
-              (courses[c] || []).length > 0 && (
-                <div key={c}>
-                  <div className="pm-catlbl">{c}</div>
-                  <ul className="pm-shop">
-                    {courses[c].map((i) => {
-                      const k = cle(i);
-                      const on = !!coche[k];
-                      return (
-                        <li key={i.n + i.u}>
-                          <button className="pm-shopbtn" data-on={on ? 1 : 0}
-                            role="checkbox" aria-checked={on} onClick={() => basculer(k)}>
-                            <span className="pm-box" />
-                            <span className="nom">{i.n}</span>
-                            <span className="lead" />
-                            <span className="qty">{i.fixe ? "à avoir" : fmtQ(i.total, i.u)}</span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )
-            ))}
+            {groupe === "plat" && (
+              <>
+                {plats.fournees.length > 0 && (
+                  <>
+                    <div className="pm-sect">Tartes à cuire</div>
+                    {plats.fournees.map((g) => (
+                      <div className="pm-plat" key={g.id}>
+                        <div className="pm-plath">
+                          <div>
+                            <div className="pm-platn">{g.nom}</div>
+                            <div className="pm-platm">{g.meta}</div>
+                          </div>
+                          <div className="pm-platq">{g.qte}</div>
+                        </div>
+                        <ul className="pm-shop">
+                          {g.items.map((i, k) =>
+                            ligne(`${prefixe}${g.id}|${k}|${i.n}`, i.n,
+                              i.fixe ? "au goût" : fmtQ(i.total, i.u))
+                          )}
+                        </ul>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {plats.repas.length > 0 && (
+                  <>
+                    <div className="pm-sect">Repas et à-côtés</div>
+                    {plats.repas.map((g) => (
+                      <div className="pm-plat" key={g.id}>
+                        <div className="pm-plath">
+                          <div>
+                            <div className="pm-platn">{g.nom}</div>
+                            <div className="pm-platm">{g.meta}</div>
+                          </div>
+                        </div>
+                        <ul className="pm-shop">
+                          {g.items.map((i, k) =>
+                            ligne(`${prefixe}${g.id}|${k}|${i.n}`, i.n,
+                              i.fixe ? "au goût" : fmtQ(i.total, i.u))
+                          )}
+                        </ul>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </>
+            )}
 
             {fini && <div className="pm-fini">Liste complète — bonne fournée</div>}
 
             <div className="pm-note">
               <h4>À savoir</h4>
               <p>
-                Chaque liste garde ses propres cases cochées, et elles sont conservées
-                si tu fermes l'application. La liste de la semaine et celle d'un jour
-                sont indépendantes : cocher dans l'une ne coche pas dans l'autre.
+                Chaque combinaison de jour et de regroupement garde ses propres cases
+                cochées, et elles survivent à la fermeture de l'application. Un même
+                ingrédient revient dans plusieurs plats, donc le cocher dans l'un ne
+                le coche pas dans les autres.
               </p>
               <p>
-                Les quantités des sept jours mises bout à bout donnent exactement la
-                liste de la semaine : les ingrédients d'une tarte sont comptés le jour
-                où elle passe au four, pas les jours où tu la manges.
+                Les ingrédients d'une tarte sont comptés le jour où elle passe au four,
+                pas les jours où tu la manges : la somme des sept jours donne
+                exactement la liste de la semaine.
               </p>
             </div>
           </>
